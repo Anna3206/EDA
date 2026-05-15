@@ -1,32 +1,47 @@
 #include <stdio.h>
 
-#define m 4903
+#define m 4919
 
 long long tabela[m];
 
-int func_hash(long long chave){
+void gerar_grafico(int inseridos, int colisoes){
 
-    long long primeiros9 = chave / 100;
-    int ultimos2 = chave % 100;
+    FILE *grafico = fopen("grafico.txt", "a");
 
-    int soma = 0;
-    int pos = 1;
-
-    while(primeiros9 > 0){
-
-        int digito = primeiros9 % 10;
-
-        soma += digito * pos;
-
-        primeiros9 /= 10;
-
-        pos++;
+    if(grafico == NULL){
+        printf("Erro ao criar grafico.\n");
+        return;
     }
 
-    int indice = soma * ultimos2;
+    fprintf(grafico, "%d %d\n", inseridos, colisoes);
 
-    return indice % m;
+    fclose(grafico);
 }
+
+int func_hash(long long chave){
+
+    int verificadores = chave % 100;
+    chave /= 100;
+    int tres_finais = chave % 1000;
+    chave /= 1000;
+    int tres_meio = chave % 1000;
+    chave /= 1000;
+    int tres_primeiros = chave % 1000;
+
+    int soma = tres_primeiros + tres_meio;
+
+    long long resultado = soma * tres_finais;
+
+    if(verificadores == 0){
+        verificadores = 1;
+    }
+
+    resultado /= verificadores;
+
+    return resultado % m;
+}
+
+// Métodos para Tratamento de Colisão:
 
 int colisao_linear(int indice, int tentativa){
     return (indice + tentativa) % m;
@@ -39,16 +54,17 @@ int colisao_quadratica(int indice_original, int tentativa){
     return (indice_original + c1 * tentativa + c2 * tentativa * tentativa) % m;
 }
 
-int colisao_dupla(int chave, int tentativa){
+int colisao_dupla(long long chave, int tentativa){
     int h1 = func_hash(chave);
-    int h2 = 7 - (chave % 7);
-
+    int h2 = 1 + (chave % (m - 1));
     return (h1 + tentativa * h2) % m;
 }
 
 int main(void){
+    FILE *limpa = fopen("grafico.txt", "w");
+    fclose(limpa);
 
-    FILE* arq = fopen("cpf.txt", "r");
+    FILE* arq = fopen("CPFsValidos.txt", "r");
 
     if(!arq){
         printf("Erro ao abrir arquivo.\n");
@@ -90,6 +106,7 @@ int main(void){
         }
     }
 
+    gerar_grafico(inseridos, colisoes);
     fclose(arq);
 
     printf("\n");
