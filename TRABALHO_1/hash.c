@@ -41,19 +41,6 @@ int h2(long long chave) {
     return (int)(h % (m - 1)) + 1;
 }
 
-// Métodos para Tratamento de Colisão:
-
-int colisao_linear(int indice, int tentativa){
-    return (indice + tentativa) % m;
-}
-
-int colisao_quadratica(int indice_original, int tentativa){
-    int c1 = 1;
-    int c2 = 3;
-
-    return (indice_original + c1 * tentativa + c2 * tentativa * tentativa) % m;
-}
-
 int colisao_dupla(long long chave, int tentativa){
     return (h1(chave) + tentativa * h2(chave)) % m;
 }
