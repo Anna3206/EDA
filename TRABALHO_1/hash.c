@@ -18,27 +18,27 @@ void gerar_grafico(int inseridos, int colisoes){
     fclose(grafico);
 }
 
-int func_hash(long long chave){
+int h1(long long chave) {
+    int verif = chave % 100; chave /= 100;
+    int b3 = chave % 1000; chave /= 1000;  // últimos 3
+    int b2 = chave % 1000; chave /= 1000;  // meio
+    int b1 = chave % 1000;                 // primeiros 3
 
-    int verificadores = chave % 100;
-    chave /= 100;
-    int tres_finais = chave % 1000;
-    chave /= 1000;
-    int tres_meio = chave % 1000;
-    chave /= 1000;
-    int tres_primeiros = chave % 1000;
+    if (verif == 0) verif = 1;
 
-    int soma = tres_primeiros + tres_meio;
+    unsigned long long h = (unsigned long long)((b1 ^ b2) * b3) ^ verif;
+    return (int)(h % m);
+}
 
-    long long resultado = soma * tres_finais;
-
-    if(verificadores == 0){
-        verificadores = 1;
+int h2(long long chave) {
+    unsigned long long h = 0;
+    int shift = 0;
+    while (chave > 0) {
+        h ^= (chave % 10) << shift;
+        shift = (shift + 3) % 16;
+        chave /= 10;
     }
-
-    resultado /= verificadores;
-
-    return resultado % m;
+    return (int)(h % (m - 1)) + 1;
 }
 
 // Métodos para Tratamento de Colisão:
@@ -55,9 +55,7 @@ int colisao_quadratica(int indice_original, int tentativa){
 }
 
 int colisao_dupla(long long chave, int tentativa){
-    int h1 = func_hash(chave);
-    int h2 = 1 + (chave % (m - 1));
-    return (h1 + tentativa * h2) % m;
+    return (h1(chave) + tentativa * h2(chave)) % m;
 }
 
 int main(void){
@@ -82,7 +80,7 @@ int main(void){
 
     while(fscanf(arq, "%lld", &chave) != EOF){
 
-        int indice = func_hash(chave);
+        int indice = h1(chave);
 
         int tentativa = 0;
 
@@ -100,13 +98,14 @@ int main(void){
             }
         }
 
-        if(tentativa < m){
+        if (tentativa < m) {
             tabela[indice] = chave;
             inseridos++;
+
+            if (inseridos % 100 == 0 || inseridos == 4096)
+                gerar_grafico(inseridos, colisoes);
         }
     }
-
-    gerar_grafico(inseridos, colisoes);
     fclose(arq);
 
     printf("\n");
@@ -115,7 +114,7 @@ int main(void){
 
     printf("\nPrimeiras 100 posicoes da tabela:\n\n");
 
-    for(int i = 0; i < 100; i++){
+    for(int i = 0; i < 5; i++){
 
         if(tabela[i] != -1)
             printf("[%4d] -> %lld\n", i, tabela[i]);
