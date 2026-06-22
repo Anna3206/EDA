@@ -20,9 +20,9 @@ void gerar_grafico(int inseridos, int colisoes){
 
 int h1(long long chave) {
     int verif = chave % 100; chave /= 100;
-    int b3 = chave % 1000; chave /= 1000;  // últimos 3
-    int b2 = chave % 1000; chave /= 1000;  // meio
-    int b1 = chave % 1000;                 // primeiros 3
+    int b3 = chave % 1000; chave /= 1000; 
+    int b2 = chave % 1000; chave /= 1000; 
+    int b1 = chave % 1000;               
 
     if (verif == 0) verif = 1;
 
@@ -34,7 +34,8 @@ int h2(long long chave) {
     unsigned long long h = 0;
     int shift = 0;
     while (chave > 0) {
-        h ^= (chave % 10) << shift;
+        int digito = chave % 10;
+        h ^= (digito << shift);
         shift = (shift + 3) % 16;
         chave /= 10;
     }
@@ -101,7 +102,7 @@ int main(void){
 
     printf("\nPrimeiras 100 posicoes da tabela:\n\n");
 
-    for(int i = 0; i < 5; i++){
+    for(int i = 0; i < 100; i++){
 
         if(tabela[i] != -1)
             printf("[%4d] -> %lld\n", i, tabela[i]);
